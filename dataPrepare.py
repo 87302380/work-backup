@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 data = pd.read_csv('U:/pythonTest/bacmen_vs_viral.csv', header=0, sep=',')
 
@@ -20,7 +21,8 @@ x_train, x_test, y_train, y_test = train_test_split(x,y,
                                                     stratify = y,
                                                     shuffle = True)
 
-print(np.std(x_train, axis=0))
-
+scaler = StandardScaler()
+x_train = scaler.fit_transform(x_train)
+x_test = scaler.transform(x_test)
 
 
