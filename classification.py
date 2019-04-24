@@ -10,8 +10,7 @@ from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 x_train = pd.read_csv('./data/x_train.csv').values
 y_train = pd.read_csv('./data/y_train.csv').values[:,0]
 x_test = pd.read_csv('./data/x_test.csv').values
-y_test = pd.read_csv('./data/y_test.csv').values
-
+y_test = pd.read_csv('./data/y_test.csv').values[:,0]
 
 
 x_train_resampled, y_train_resampled = x_train, y_train
@@ -19,45 +18,41 @@ x_train_resampled, y_train_resampled = x_train, y_train
 train_data = lgb.Dataset(x_train_resampled, label=y_train_resampled)
 test_data = lgb.Dataset(x_test, label=y_test)
 
-print(y_test)
-
 params = {
     'boosting_type': 'gbdt',
     'objective': 'multiclass',
     'num_class':5,
     'metric_freq':1,
-    'max_bin':255,
+    'max_bin':25,
     'metric': 'multi_logloss',
     'num_leaves': 31,
-    'learning_rate': 0.05,
-    'num_trees': 1000,
-    'bagging_fraction': 0.8,
+    'learning_rate': 0.1,
+    'num_trees': 100,
+    'bagging_fraction': 1,
     'bagging_freq': 5,
     'feature_fraction': 0.9,
     'lambda_l2': 0.5,
     'min_gain_to_split': 0.2,
 
 }
-"""
+
 gbm = lgb.train(params,
                 train_data,
                 num_boost_round=10,
                 valid_sets=test_data,
                 early_stopping_rounds=5)
-"""
+
+def get_f1_score(predict, test_data_label):
+    predict_label = np.argmax(predict, axis=1)
+    return f1_score(test_data_label, predict_label, average='micro')
+
 print('Start predicting...')
 
+predict = gbm.predict(x_test, num_iteration=gbm.best_iteration)
 
-"y_pred = gbm.predict(test_data, num_iteration=gbm.best_iteration)"
+print(get_f1_score(predict,y_test))
 
-
-
-def lgb_f1_score(y_hat, data):
-    y_true = data.get_label()
-    y_hat = np.round(y_hat) # scikits f1 doesn't like probabilities
-    return 'f1', f1_score(y_true, y_hat), True
-
-
+'''
 def objective(params):
     # print(params)
 
@@ -106,7 +101,7 @@ def objective(params):
     f1 = max(evals_result['valid_0']['f1'])
 
     return -f1
-
+'''
 
 """
 trials = Trials()

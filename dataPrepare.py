@@ -5,14 +5,11 @@ from sklearn.preprocessing import StandardScaler
 
 data = pd.read_csv('./data/bacmen_vs_viral.csv', header=0, sep=',')
 
-data.loc[data.diagnosis == 'BacMen', 'diagnosis'] = 1.0
-data.loc[data.diagnosis == 'HSV', 'diagnosis'] = 2.0
-data.loc[data.diagnosis == 'Z. men_enc', 'diagnosis'] = 3.0
-data.loc[data.diagnosis == 'Ent. men', 'diagnosis'] = 4.0
+data.loc[data.diagnosis == 'BacMen', 'diagnosis'] = 0
+data.loc[data.diagnosis == 'HSV', 'diagnosis'] = 1
+data.loc[data.diagnosis == 'Z. men_enc', 'diagnosis'] = 3
+data.loc[data.diagnosis == 'Ent. men', 'diagnosis'] = 4
 
-data['diagnosis'] = data['diagnosis'].astype('float64')
-
-print(data)
 
 y = np.array(data['diagnosis'].tolist())
 
@@ -21,7 +18,7 @@ x = np.array(data.values)
 
 x_train, x_test, y_train, y_test = train_test_split(x,y,
                                                     test_size = 0.2,
-                                                    random_state=42,
+                                                    random_state=35,
                                                     stratify = y,
                                                     shuffle = True)
 
