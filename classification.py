@@ -18,48 +18,52 @@ x_train_resampled, y_train_resampled = x_train, y_train
 train_data = lgb.Dataset(x_train_resampled, label=y_train_resampled)
 test_data = lgb.Dataset(x_test, label=y_test)
 
+
+
+
+print('Start predicting...')
+
+def get_f1_score(model):
+    predict = model.predict(x_test, num_iteration=model.best_iteration)
+    predict_label = np.argmax(predict, axis=1)
+
+    return f1_score(test_data.get_label(), predict_label, average='micro')
+
+'''
 params = {
     'boosting_type': 'gbdt',
     'objective': 'multiclass',
+    'metric': 'multi_logloss',
     'num_class':5,
     'metric_freq':1,
     'max_bin':25,
-    'metric': 'multi_logloss',
     'num_leaves': 31,
     'learning_rate': 0.1,
     'num_trees': 100,
-    'bagging_fraction': 1,
-    'bagging_freq': 5,
-    'feature_fraction': 0.9,
-    'lambda_l2': 0.5,
-    'min_gain_to_split': 0.2,
-
+    'bagging_fraction': 0.8,
+    'bagging_freq': 10,
+    'feature_fraction': 0.884666745361057,
+    'lambda_l2': 2,
+    'min_gain_to_split': 0.2143116702471033,
+    'scale_pos_weight': 3.201815491344985
 }
+
 
 gbm = lgb.train(params,
                 train_data,
                 num_boost_round=10,
                 valid_sets=test_data,
                 early_stopping_rounds=5)
-
-def get_f1_score(predict, test_data_label):
-    predict_label = np.argmax(predict, axis=1)
-    return f1_score(test_data_label, predict_label, average='micro')
-
-print('Start predicting...')
-
-predict = gbm.predict(x_test, num_iteration=gbm.best_iteration)
-
-print(get_f1_score(predict,y_test))
+                
+                
+print(get_f1_score(gbm))
 
 '''
-def objective(params):
-    # print(params)
 
-    evals_result = {}
+def objective(params):
 
     num_leaves = int(params['num_leaves'])
-    min_data_in_leaf = int(params['min_data_in_leaf'])
+    #min_data_in_leaf = int(params['min_data_in_leaf'])
     max_bin = int(params['max_bin'])
     bagging_fraction = params['bagging_fraction']
     bagging_freq = int(params['bagging_freq'])
@@ -68,52 +72,46 @@ def objective(params):
     min_gain_to_split = params['min_gain_to_split']
     scale_pos_weight = params['scale_pos_weight']
 
-    param = {'num_leaves': num_leaves,
-             'min_data_in_leaf': min_data_in_leaf,
-             'max_bin': max_bin,
-             'learning_rate': 0.1,
-             'num_trees': 1000,
-             'objective': 'binary',
-             'bagging_fraction': bagging_fraction,
-             'bagging_freq': bagging_freq,
-             'feature_fraction': feature_fraction,
-             'verbose': -1,
-             'lambda_l2': lambda_l2,
-             'min_gain_to_split': min_gain_to_split,
-
-             # Cannot set is_unbalance and scale_pos_weight at the same time
-             # 'is_unbalance' : True, #set this to true if training data are unbalanced
-
-             # 'scale_pos_weight' : scale_pos_weight,
-             # 'metric' : 'binary_logloss' # map, MAP, aliases: mean_average_precision
-             'scale_pos_weight': scale_pos_weight,
+    param = {
+        'boosting_type': 'gbdt',
+        'objective': 'multiclass',
+        'metric': 'multi_logloss',
+        'num_class': 5,
+        'num_leaves': num_leaves,
+        #'min_data_in_leaf': min_data_in_leaf,
+        'max_bin': max_bin,
+        'learning_rate': 0.1,
+        'num_trees': 1000,
+        'bagging_fraction': bagging_fraction,
+        'bagging_freq': bagging_freq,
+        'feature_fraction': feature_fraction,
+        'verbose': -1,
+        'lambda_l2': lambda_l2,
+        'min_gain_to_split': min_gain_to_split,
+        'scale_pos_weight': scale_pos_weight,
              }
 
-    bst = lgb.train(param,
+
+    model_lgb = lgb.train(param,
                     train_data,
                     valid_sets=[test_data],
                     early_stopping_rounds=15,
-                    verbose_eval=False,
-                    feval=lgb_f1_score,
-                    evals_result=evals_result,
                     )
+    score = get_f1_score(model_lgb)
+    print(score)
 
-    f1 = max(evals_result['valid_0']['f1'])
+    return 1-score
 
-    return -f1
-'''
 
-"""
-trials = Trials()
 
 space = {
-         'num_leaves' : hp.quniform('num_leaves', 100, 700, 10),
-         'min_data_in_leaf' : hp.quniform('min_data_in_leaf', 10, 300, 1),
-         'max_bin' : hp.quniform('max_bin', 200, 4000, 10),
-         'bagging_fraction' : hp.uniform('bagging_fraction', 0.01, 1.0), # 0.0 < bagging_fraction <= 1.0
+         'num_leaves' : hp.quniform('num_leaves', 10, 200, 1),
+         #'min_data_in_leaf' : hp.quniform('min_data_in_leaf', 10, 300, 1),
+         'max_bin' : hp.quniform('max_bin', 10, 255, 5),
+         'bagging_fraction' : hp.uniform('bagging_fraction', 0.1, 1.0), # 0.0 < bagging_fraction <= 1.0
          'bagging_freq' : hp.quniform('bagging_freq', 0, 20, 1),
          'feature_fraction' :  hp.uniform('feature_fraction', 0.01, 1.0), # 0.0 < feature_fraction <= 1.0
-         'lambda_l2' : hp.uniform('lambda_l2', 0.0, 80.0),
+         'lambda_l2' : hp.uniform('lambda_l2', 0.0, 20.0),
          'min_gain_to_split' : hp.uniform('min_gain_to_split', 0.0, 1.0),
          'scale_pos_weight' : hp.uniform('scale_pos_weight', 1.0, 10.0),
         }
@@ -121,7 +119,8 @@ space = {
 best = fmin(objective,
     space=space,
     algo=tpe.suggest,
-    trials=trials,
-    max_evals= 'BacMen')
+    max_evals = 100)
 
-"""
+print(best)
+
+
