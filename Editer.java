@@ -29,11 +29,19 @@ public class Editer {
         this.save(image, URL, "png");
     }
 
-    public static void main(String[] args) throws IOException {
-        Editer editer = new Editer();
+    public BufferedImage format(BufferedImage image){
+        return image.getSubimage(123,0, 742, image.getHeight());
+    }
 
-        String URL = "./test.png";
-        BufferedImage image = editer.getImage(URL);
+    public void crop(String src, String name, String format, boolean isFormat){
+        String URL = src + name + format;
+        BufferedImage image = null;
+
+        if (!isFormat){
+            image = this.format(this.getImage(URL));
+        }else {
+            image = this.getImage(URL);
+        }
 
         int width = image.getWidth();
         int height = image.getHeight();
@@ -41,19 +49,28 @@ public class Editer {
 
         if (part==0){
             BufferedImage imagePart = image.getSubimage(0,0, width, height%2400);
-            String fileName = String.valueOf(part)+".png";
-            editer.save(imagePart,fileName);
+            String fileName = src + name + "-" + String.valueOf(part)+ format;
+            this.save(imagePart,fileName);
         }else {
             for (int i = 0; i<part;i++){
                 BufferedImage imagePart = image.getSubimage(0,2400*(i), width,2400);
-                String fileName = String.valueOf(i)+".png";
-                editer.save(imagePart,fileName);
+                String fileName = src + name + "-" + String.valueOf(i)+ format;
+                this.save(imagePart,fileName);
             }
             BufferedImage imagePart = image.getSubimage(0,2400*(part), width, height%2400);
-            String fileName = String.valueOf(part+1)+".png";
-            editer.save(imagePart,fileName);
+            String fileName = src + name + "-" + String.valueOf(part+1)+ format;
+            this.save(imagePart,fileName);
         }
+    }
 
+    public static void main(String[] args) throws IOException {
+        Editer editer = new Editer();
+
+        String src = "/home/leichen/Desktop/test/";
+        String name = "test1";
+        String format = ".png";
+
+        editer.crop(src, name, format, false);
     }
 
 }
