@@ -40,6 +40,7 @@ x = np.array(data.values)
 print('x.shape:', x.shape)
 print('y.shape:', y.shape)
 
+
 def get_feature_importance(booster, importance_type='split'):
 
     #check type and assign private attribute to public
@@ -71,15 +72,18 @@ feature_loo = LeaveOneOut()
 
 for feature_index, lable_index in feature_loo.split(range(x.shape[1])):
 
+
     start= time.time()
     selected_x = x[:,feature_index]
     selected_y = x[:,lable_index][:,0]
     
     #print('selected_x.shape:', selected_x.shape)
-    #print('selected_y.shape:', selected_y.shape) 
+    #print('selected_y.shape:', selected_y.shape)
     #print('Feature {} as target'.format(lable_index[0]))
+
     result_per_feature_dict = {'feature':lable_index[0]}
     result_per_feature_dict.update({'name':data.keys()[lable_index[0]]})
+
 
     for _ in range(10):
 
@@ -95,6 +99,7 @@ for feature_index, lable_index in feature_loo.split(range(x.shape[1])):
             y_train = selected_y[train_index]
             x_test = selected_x[test_index]
             y_test = selected_y[test_index]
+
 
             x_scaler = StandardScaler() #welchen skalierer benutzen? BoxCox
             x_train = x_scaler.fit_transform(x_train)
@@ -137,7 +142,8 @@ for feature_index, lable_index in feature_loo.split(range(x.shape[1])):
                      #'metric' : 'rmse',
                     }
 
-            bst = lgb.train(param, 
+
+            bst = lgb.train(param,
                         train_data, 
                         valid_sets=[test_data], 
                         early_stopping_rounds=5,
