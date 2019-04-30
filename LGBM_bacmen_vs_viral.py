@@ -12,6 +12,7 @@ from lightgbm.basic import Booster
 import operator
 import warnings
 import csv
+from sklearn.model_selection import train_test_split
 
 warnings.filterwarnings("ignore")
 
@@ -24,6 +25,10 @@ data.loc[data['diagnosis'] == 'BacMen', 'label'] = 1
 data.loc[data['diagnosis'] == 'HSV', 'label'] = 2
 data.loc[data['diagnosis'] == 'Z. men_enc', 'label'] = 3
 data.loc[data['diagnosis'] == 'Ent. men', 'label'] = 4
+
+
+
+#lgb.cv()
 
 print(data['label'].unique())
 
@@ -39,6 +44,50 @@ x = np.array(data.values)
 
 print('x.shape:', x.shape)
 print('y.shape:', y.shape)
+
+x_train, x_test, y_train, y_test = train_test_split(x,y,
+                                                    test_size = 0.2,
+                                                    random_state=35,
+                                                    stratify = y,
+                                                    shuffle = True)
+
+lgb_train = lgb.Dataset(x_train, y_train, free_raw_data=False)
+lgb_eval = lgb.Dataset(x_test, y_test, reference=lgb_train,free_raw_data=False)
+
+params = {
+          'boosting_type': 'gbdt',
+          'objective': 'regression_l2',
+          }
+min_merror = float('Inf')
+best_params = {}
+
+for num_leaves in range(20, 200, 5):
+    for max_depth in range(3, 8, 1):
+        params['num_leaves'] = num_leaves
+        params['max_depth'] = max_depth
+
+        cv_results = lgb.cv(
+            params,
+            lgb_train,
+            seed=2018,
+            nfold=3,
+            metrics=['binary_error'],
+            early_stopping_rounds=10,
+            verbose_eval=True
+        )
+
+        mean_merror = pd.Series(cv_results['binary_error-mean']).min()
+        boost_rounds = pd.Series(cv_results['binary_error-mean']).argmin()
+
+        if mean_merror < min_merror:
+            min_merror = mean_merror
+            best_params['num_leaves'] = num_leaves
+            best_params['max_depth'] = max_depth
+
+params['num_leaves'] = best_params['num_leaves']
+params['max_depth'] = best_params['max_depth']
+
+
 
 def get_feature_importance(booster, importance_type='split'):
 
