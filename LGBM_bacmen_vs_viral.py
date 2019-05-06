@@ -48,6 +48,7 @@ print('y.shape:', y.shape)
 params = {
     'boosting_type': 'gbdt',
     'objective': 'regression_l2',
+    'learning_rate':0.1,
 }
 
 def cv_valid(params, x, y):
@@ -62,8 +63,8 @@ def cv_valid(params, x, y):
     min_merror = float('Inf')
     best_params = {}
 
-    for num_leaves in range(10, 200, 1):
-        for max_depth in range(3, 8, 1):
+    for num_leaves in range(2, 20, 1):
+        for max_depth in range(3, 20, 1):
             params['num_leaves'] = num_leaves
             params['max_depth'] = max_depth
 
@@ -71,14 +72,14 @@ def cv_valid(params, x, y):
                 params,
                 lgb_train,
                 nfold=3,
-                metrics=['l1'],
+                metrics=['l2'],
                 early_stopping_rounds=10,
                 stratified = False
             )
 
             print(cv_results)
 
-            mean_merror = pd.Series(cv_results['l1-mean']).min()
+            mean_merror = pd.Series(cv_results['l2-mean']).min()
 
             if mean_merror < min_merror:
                 min_merror = mean_merror
@@ -88,22 +89,21 @@ def cv_valid(params, x, y):
     params['num_leaves'] = best_params['num_leaves']
     params['max_depth'] = best_params['max_depth']
 
-    for max_bin in range(2, 255, 2):
-        for min_data_in_leaf in range(10, 200, 2):
+    for max_bin in range(3, 30, 1):
+        for min_data_in_leaf in range(2, 30, 1):
             params['max_bin'] = max_bin
             params['min_data_in_leaf'] = min_data_in_leaf
 
             cv_results = lgb.cv(
                 params,
                 lgb_train,
-                seed=42,
                 nfold=3,
-                metrics=['l1'],
+                metrics=['l2'],
                 early_stopping_rounds=3,
                 verbose_eval=True
             )
 
-            mean_merror = pd.Series(cv_results['l1-mean']).min()
+            mean_merror = pd.Series(cv_results['l2-mean']).min()
 
             if mean_merror < min_merror:
                 min_merror = mean_merror
@@ -115,7 +115,7 @@ def cv_valid(params, x, y):
 
     for feature_fraction in [ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
         for bagging_fraction in [ 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-            for bagging_freq in range(0, 50, 5):
+            for bagging_freq in range(0, 20, 5):
                 params['feature_fraction'] = feature_fraction
                 params['bagging_fraction'] = bagging_fraction
                 params['bagging_freq'] = bagging_freq
@@ -125,12 +125,12 @@ def cv_valid(params, x, y):
                     lgb_train,
                     seed=42,
                     nfold=3,
-                    metrics=['l1'],
+                    metrics=['l2'],
                     early_stopping_rounds=3,
                     verbose_eval=True
                 )
 
-                mean_merror = pd.Series(cv_results['l1-mean']).min()
+                mean_merror = pd.Series(cv_results['l2-mean']).min()
 
                 if mean_merror < min_merror:
                     min_merror = mean_merror
@@ -142,36 +142,36 @@ def cv_valid(params, x, y):
     params['bagging_fraction'] = best_params['bagging_fraction']
     params['bagging_freq'] = best_params['bagging_freq']
 
-    for lambda_l1 in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-        for lambda_l2 in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-            for min_split_gain in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
-                params['lambda_l1'] = lambda_l1
-                params['lambda_l2'] = lambda_l2
-                params['min_split_gain'] = min_split_gain
-
-                cv_results = lgb.cv(
-                    params,
-                    lgb_train,
-                    seed=42,
-                    nfold=3,
-                    metrics=['l1'],
-                    early_stopping_rounds=3,
-                    verbose_eval=True
-                )
-
-
-
-                mean_merror = pd.Series(cv_results['l1-mean']).min()
-
-                if mean_merror < min_merror:
-                    min_merror = mean_merror
-                    best_params['lambda_l1'] = lambda_l1
-                    best_params['lambda_l2'] = lambda_l2
-                    best_params['min_split_gain'] = min_split_gain
-
-    params['lambda_l1'] = best_params['lambda_l1']
-    params['lambda_l2'] = best_params['lambda_l2']
-    params['min_split_gain'] = best_params['min_split_gain']
+    # for lambda_l1 in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+    #     for lambda_l2 in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+    #         for min_split_gain in [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]:
+    #             params['lambda_l1'] = lambda_l1
+    #             params['lambda_l2'] = lambda_l2
+    #             params['min_split_gain'] = min_split_gain
+    #
+    #             cv_results = lgb.cv(
+    #                 params,
+    #                 lgb_train,
+    #                 seed=42,
+    #                 nfold=3,
+    #                 metrics=['l1'],
+    #                 early_stopping_rounds=3,
+    #                 verbose_eval=True
+    #             )
+    #
+    #
+    #
+    #             mean_merror = pd.Series(cv_results['l1-mean']).min()
+    #
+    #             if mean_merror < min_merror:
+    #                 min_merror = mean_merror
+    #                 best_params['lambda_l1'] = lambda_l1
+    #                 best_params['lambda_l2'] = lambda_l2
+    #                 best_params['min_split_gain'] = min_split_gain
+    #
+    # params['lambda_l1'] = best_params['lambda_l1']
+    # params['lambda_l2'] = best_params['lambda_l2']
+    # params['min_split_gain'] = best_params['min_split_gain']
 
 
 cv_valid(params, x, y)

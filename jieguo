@@ -1,0 +1,83 @@
+
+
+result 1 
+            param = {'max_depth':3,
+		     'num_leaves':3,
+		     'max_bin':4,
+		     'min_data_in_leaf':3,
+                     'boosting' : 'gbdt',
+                     #'min_data_in_leaf':min_data_in_leaf,
+                     'learning_rate':0.1,
+                     #'num_trees':10,
+                     'objective':'regression_l2',
+                     #'num_threads ':8
+                     'bagging_fraction':0.1,
+                     'bagging_freq':0,
+                     'feature_fraction':1.0,
+                     'verbose':-1,
+                     #'lambda_l2':0.4,
+                     #'min_gain_to_split':min_gain_to_split,
+                     #'metric' : 'rmse',
+                    }
+
+result 2
+            param = {'max_depth':3,
+		     'num_leaves':3,
+		     'max_bin':5,
+		     'min_data_in_leaf':2,
+                     'boosting' : 'gbdt',
+                     #'min_data_in_leaf':min_data_in_leaf,
+                     'learning_rate':0.1,
+                     #'num_trees':10,
+                     'objective':'regression_l2',
+                     #'num_threads ':8
+                     'bagging_fraction':0.1,
+                     'bagging_freq':0,
+                     'feature_fraction':1.0,
+                     'verbose':-1,
+                     #'lambda_l2':0.4,
+                     #'min_gain_to_split':min_gain_to_split,
+                     #'metric' : 'rmse',
+                    }
+
+result 3
+            param = {'max_depth':2,
+		     'num_leaves':4,
+		     'max_bin':3,
+		     'min_data_in_leaf':2,
+                     'boosting' : 'gbdt',
+                     'learning_rate':0.1,
+                     'objective':'regression_l2',
+                     'bagging_fraction':0.1,
+                     'bagging_freq':0,
+                     'feature_fraction':1.0,
+                     'verbose':-1,
+                    }
+
+result 4 
+            param = {'max_depth':3,
+		     'num_leaves':2,
+                     'max_bin':3,
+                     'min_data_in_leaf':4,
+                     'boosting' : 'gbdt',
+                     'learning_rate':0.1,
+                     'objective':'regression_l2',
+                     'bagging_fraction':0.1,
+                     'bagging_freq':0,
+                     'feature_fraction':1.0,
+                     'verbose':-1,
+                    }
+
+result 5
+            param = {'max_depth':3,
+		     'num_leaves':2,
+                     'max_bin':5,
+                     'min_data_in_leaf':2,
+                     'boosting' : 'gbdt',
+                     'learning_rate':0.1,
+                     'objective':'regression_l2',
+                     'bagging_fraction':0.1,
+                     'bagging_freq':0,
+                     'feature_fraction':1.0,
+                     'verbose':-1,
+                    }
