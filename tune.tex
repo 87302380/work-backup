@@ -1,0 +1,68 @@
+\documentclass[12pt]{article}
+
+\usepackage{hyperref}
+
+\title{Hyperparameter optimization}
+
+\date{}
+
+
+\begin{document}
+	\maketitle
+	
+	
+	\section{Grid Search}
+	Grid Search performs an exhaustive searching through a manually specified subset of the hyperparameter space defined in the searchspace file. 
+	
+	\subsection{advantage}
+	it will find the best
+	\subsection{Disadvantage}
+	Slow, High  cost.
+	Local optimization is not necessarily globally optimal.\\
+	bad on high spaces
+	\subsection{used for}
+	low spaces, small data sets
+	\subsection{framework}
+	sklearn.model{\_}selection.GridSearchCV
+	
+	
+	\section{Random Search}
+	In Random Search for Hyper-Parameter Optimization show that Random Search might be surprisingly simple and effective. We suggest that we could use Random Search as the baseline when we have no knowledge about the prior distribution of hyper-parameters. 
+	
+	\subsection{advantage}
+	good on high spaces\\
+	Give better results in less iterations
+	\subsection{Disadvantage}
+	it doesn't guarantee to find the best hyperparameters.
+	\subsection{used for}
+	There may be surprises on big data sets.\\
+	Results can be used as a benchmark.
+	
+	\subsection{framework}
+	
+	hyperopt:\url{https://github.com/hyperopt/hyperopt}
+	\\\\
+	Reference Paper:\url{http://www.jmlr.org/papers/volume13/bergstra12a/bergstra12a.pdf} 
+
+	\section{TPE}
+	\subsection{advantage}
+
+	\subsection{Disadvantage}
+
+	\subsection{used for}
+
+	\subsection{framework}
+	hyperopt:\url{https://github.com/hyperopt/hyperopt}
+	\\\\
+	
+	\section{SMAC}
+	\subsection{advantage}
+
+	\subsection{Disadvantage}
+
+	\subsection{used for}
+
+	\subsection{framework}
+
+	
+\end{document}
