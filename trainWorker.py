@@ -8,7 +8,7 @@ from hpbandster.core.worker import Worker
 import ConfigSpace as CS
 
 
-class LightGBMWorker(Worker):
+class trainWorker(Worker):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
 
@@ -23,8 +23,14 @@ class LightGBMWorker(Worker):
                                                             stratify=y,
                                                             shuffle=True)
 
-        self.train_loader = lgb.Dataset(x_train, label=y_train)
-        self.test_loader = lgb.Dataset(x_test, label=y_test)
+        self.train_loader = lgb.Dataset(x_train, label=y_train, free_raw_data=False).construct()
+        self.test_loader = lgb.Dataset(x_test, label=y_test, free_raw_data=False).construct()
+
+    def get_f1_score(self, model):
+        predict = model.predict(self.test_loader.get_data(), num_iteration=model.best_iteration)
+        predict_label = np.round(predict)
+
+        return f1_score(self.test_loader.get_label(), predict_label, average='micro')
 
 
     def compute(self, config, budget, *args, **kwargs):
@@ -58,19 +64,19 @@ class LightGBMWorker(Worker):
             'min_gain_to_split': min_gain_to_split
         }
 
-        cv_results = lgb.cv(
-            param,
-            self.train_loader,
-            nfold=10,
-            metrics='binary_error',
-            early_stopping_rounds=10
-        )
+        gbm = lgb.train(param,
+                        self.train_loader,
+                        num_boost_round=10,
+                        valid_sets=self.test_loader,
+                        early_stopping_rounds=10)
 
-        l2_mean = min(cv_results['binary_error-mean'])
+
+
+        f1_score = self.get_f1_score(gbm)
 
         return ({
-            'loss': float(l2_mean),  # this is the a mandatory field to run hyperband
-            'info': l2_mean  # can be used for any user-defined information - also mandatory
+            'loss': float(1-f1_score),  # this is the a mandatory field to run hyperband
+            'info': f1_score  # can be used for any user-defined information - also mandatory
         })
 
 

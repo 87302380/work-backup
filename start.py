@@ -16,7 +16,7 @@ from LightGBMWorker import LightGBMWorker as worker
 parser = argparse.ArgumentParser(description='Example 1 - sequential and local execution.')
 parser.add_argument('--min_budget',   type=float, help='Minimum budget used during the optimization.',    default=9)
 parser.add_argument('--max_budget',   type=float, help='Maximum budget used during the optimization.',    default=243)
-parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=4)
+parser.add_argument('--n_iterations', type=int,   help='Number of iterations performed by the optimizer', default=20)
 parser.add_argument('--worker', help='Flag to turn this into a worker process', action='store_true')
 parser.add_argument('--shared_directory',type=str, help='A directory that is accessible for all processes, e.g. a NFS share.', default='./result')
 
@@ -31,7 +31,7 @@ if args.worker:
     w.run(background=False)
     exit(0)
 
-result_logger = hpres.json_result_logger(directory=args.shared_directory, overwrite=False)
+result_logger = hpres.json_result_logger(directory=args.shared_directory, overwrite=True)
 
 
 # Step 1: Start a nameserver
