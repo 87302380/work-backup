@@ -21,11 +21,27 @@ params = {
     'num_leaves': 10,
     'max_bin':26,
     'min_data_in_leaf': 41,
-    #'learning_rate': 0.1,
-    # 'bagging_fraction': 0.5,
-    # 'bagging_freq': 20,
-    # 'feature_fraction': 0.2,
+    'learning_rate': 0.1,
+    'bagging_fraction': 0.8,
+    'bagging_freq': 5,
+    'feature_fraction': 0.5,
     # 'lambda_l1': 0.0,
     # 'lambda_l2': 0.0,
     # 'min_gain_to_split': 0
+}
+
+params = {
+    'boosting_type': 'gbdt',
+    'objective': 'binary',
+    'max_depth': 3,
+    'num_leaves': 6,
+    'max_bin':17,
+    'min_data_in_leaf': 28,
+    # 'learning_rate': 0.1,
+    # 'bagging_fraction': 0.8,
+    # 'bagging_freq': 5,
+    # 'feature_fraction': 0.5,
+    # 'lambda_l1': 0,
+    # 'lambda_l2': 0,
+    # 'min_gain_to_split': 0.3
 }
