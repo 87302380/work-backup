@@ -45,3 +45,24 @@ params = {
     # 'lambda_l2': 0,
     # 'min_gain_to_split': 0.3
 }
+
+        param = {
+            'boosting_type': 'gbdt',
+            'objective': 'regression_l2',
+            'learning_rate': 0.1,
+            'num_leaves': 34,
+            'max_depth': 4,
+            'min_data_in_leaf': 30,
+            #'num_trees': num_trees,
+            'max_bin': 43,
+            'bagging_fraction': 0.1634289958599664,
+            'bagging_freq': 32,
+            'feature_fraction': 0.30623471059200935,
+            # 'verbose': -1,
+            'lambda_l1': 0.5991820682287218,
+            'lambda_l2': 0.7144189896404612,
+            'min_gain_to_split': 0.6913702003515009
+        }
+
+Best found configuration: {'bagging_fraction': 0.7416275381597012, 'bagging_freq': 40, 'feature_fraction': 0.8845954073635096, 'lambda_l1': 0.6112347664793494, 'lambda_l2': 0.6985735120368118, 'max_bin': 42, 'max_depth': 4, 'min_data_in_leaf': 5, 'min_gain_to_split': 0.040282563045144104, 'num_leaves': 27}
+
