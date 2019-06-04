@@ -4,6 +4,7 @@ from sklearn.metrics import f1_score
 import lightgbm as lgb
 import numpy as np
 
+import data_preparation_arificial_data as data
 from hpbandster.core.worker import Worker
 import ConfigSpace as CS
 
@@ -12,10 +13,8 @@ class LightGBMWorker(Worker):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
 
-        dataset = load_breast_cancer()
-
-        x = dataset.data
-        y = dataset.target
+        x = data.get_x_with_label_excluded()
+        y = data.get_labels()
 
         x_train, x_test, y_train, y_test = train_test_split(x, y,
                                                             test_size=0.2,
@@ -32,7 +31,7 @@ class LightGBMWorker(Worker):
         num_leaves = int(config['num_leaves'])
         max_bin = int(config['max_bin'])
         min_data_in_leaf = int(config['min_data_in_leaf'])
-        # num_trees = int(config['num_trees'])
+        num_trees = int(config['num_trees'])
         bagging_fraction = config['bagging_fraction']
         bagging_freq = int(config['bagging_freq'])
         feature_fraction = config['feature_fraction']
@@ -47,12 +46,12 @@ class LightGBMWorker(Worker):
             'num_leaves': num_leaves,
             'max_depth': max_depth,
             'min_data_in_leaf': min_data_in_leaf,
-            #'num_trees': num_trees,
+            'num_trees': num_trees,
             'max_bin': max_bin,
             'bagging_fraction': bagging_fraction,
             'bagging_freq': bagging_freq,
             'feature_fraction': feature_fraction,
-            #'verbose': -1,
+            'verbose': -1,
             'lambda_l1': lambda_l1,
             'lambda_l2': lambda_l2,
             'min_gain_to_split': min_gain_to_split
@@ -61,9 +60,9 @@ class LightGBMWorker(Worker):
         cv_results = lgb.cv(
             param,
             self.train_loader,
-            nfold=10,
+            nfold=3,
             metrics='binary_error',
-            early_stopping_rounds=10
+            early_stopping_rounds=5
         )
 
         l2_mean = min(cv_results['binary_error-mean'])
@@ -78,9 +77,10 @@ class LightGBMWorker(Worker):
     @staticmethod
     def get_configspace():
         config_space = CS.ConfigurationSpace()
-        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('max_depth', lower=3, upper=8))
+        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('max_depth', lower=3, upper=6))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('num_leaves', lower=3, upper=50))
-        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('min_data_in_leaf', lower=3, upper=50))
+        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('num_trees', lower=3, upper=50))
+        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('min_data_in_leaf', lower=3, upper=6))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('max_bin', lower=3, upper=50))
         config_space.add_hyperparameter(CS.UniformFloatHyperparameter('bagging_fraction', lower=0, upper=1))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('bagging_freq', lower=0, upper=50))
