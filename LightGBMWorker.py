@@ -4,26 +4,39 @@ from sklearn.metrics import f1_score
 import lightgbm as lgb
 import numpy as np
 
-import data_preparation_arificial_data as data
+import data_preparation_arificial_data as to_be_deleted
 from hpbandster.core.worker import Worker
 import ConfigSpace as CS
 
+import regression_classifier
 
 class LightGBMWorker(Worker):
     def __init__(self,  **kwargs):
         super().__init__(**kwargs)
 
-        x = data.get_x_with_label_excluded()
-        y = data.get_labels()
 
-        x_train, x_test, y_train, y_test = train_test_split(x, y,
-                                                            test_size=0.2,
-                                                            random_state=42,
-                                                            stratify=y,
-                                                            shuffle=True)
+        # dataset = load_breast_cancer()
+        #
+        # x = dataset.data
+        # y = dataset.target
+        #
+        # x_train, x_test, y_train, y_test = train_test_split(x, y,
+        #                                                     test_size=0.2,
+        #                                                     random_state=42,
+        #                                                     stratify=y,
+        #                                                     shuffle=True)
 
-        self.train_loader = lgb.Dataset(x_train, label=y_train)
-        self.test_loader = lgb.Dataset(x_test, label=y_test)
+        # x = data.get_x_with_label_excluded()
+        # y = data.get_labels()
+        #
+        # x_train, x_test, y_train, y_test = train_test_split(x, y,
+        #                                                     test_size=0.2,
+        #                                                     random_state=42,
+        #                                                     stratify=y,
+        #                                                     shuffle=True)
+        #
+        # self.train_loader = lgb.Dataset(x_train, label=y_train)
+        # self.test_loader = lgb.Dataset(x_test, label=y_test)
 
 
     def compute(self, config, budget, *args, **kwargs):
@@ -31,7 +44,7 @@ class LightGBMWorker(Worker):
         num_leaves = int(config['num_leaves'])
         max_bin = int(config['max_bin'])
         min_data_in_leaf = int(config['min_data_in_leaf'])
-        num_trees = int(config['num_trees'])
+        #num_trees = int(config['num_trees'])
         bagging_fraction = config['bagging_fraction']
         bagging_freq = int(config['bagging_freq'])
         feature_fraction = config['feature_fraction']
@@ -39,52 +52,43 @@ class LightGBMWorker(Worker):
         lambda_l2 = config['lambda_l2'],
         min_gain_to_split = config['min_gain_to_split']
 
-        param = {
+        parameters = {
             'boosting_type': 'gbdt',
-            'objective': 'binary',
+            'objective': 'regression',
             'learning_rate': 0.1,
             'num_leaves': num_leaves,
             'max_depth': max_depth,
             'min_data_in_leaf': min_data_in_leaf,
-            'num_trees': num_trees,
+            #'num_trees': num_trees,
             'max_bin': max_bin,
-            'bagging_fraction': bagging_fraction,
-            'bagging_freq': bagging_freq,
-            'feature_fraction': feature_fraction,
+            # 'bagging_fraction': bagging_fraction,
+            # 'bagging_freq': bagging_freq,
+            # 'feature_fraction': feature_fraction,
             'verbose': -1,
             'lambda_l1': lambda_l1,
             'lambda_l2': lambda_l2,
             'min_gain_to_split': min_gain_to_split
         }
-
-        cv_results = lgb.cv(
-            param,
-            self.train_loader,
-            nfold=3,
-            metrics='binary_error',
-            early_stopping_rounds=5
-        )
-
-        l2_mean = min(cv_results['binary_error-mean'])
+        data = to_be_deleted.get_data_with_label_included()
+        accuracy = regression_classifier.get_accuracy(data, parameters, 15)
+        1-accuracy/100
 
         return ({
-            'loss': float(l2_mean),  # this is the a mandatory field to run hyperband
-            'info': l2_mean  # can be used for any user-defined information - also mandatory
+            'loss': float(1-accuracy/100),  # this is the a mandatory field to run hyperband
+            # 'info': f1_score  # can be used for any user-defined information - also mandatory
         })
-
-
 
     @staticmethod
     def get_configspace():
         config_space = CS.ConfigurationSpace()
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('max_depth', lower=3, upper=6))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('num_leaves', lower=3, upper=50))
-        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('num_trees', lower=3, upper=50))
-        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('min_data_in_leaf', lower=3, upper=6))
+        #config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('num_trees', lower=3, upper=50))
+        config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('min_data_in_leaf', lower=1, upper=10))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('max_bin', lower=3, upper=50))
-        config_space.add_hyperparameter(CS.UniformFloatHyperparameter('bagging_fraction', lower=0, upper=1))
+        config_space.add_hyperparameter(CS.UniformFloatHyperparameter('bagging_fraction', lower=0.1, upper=0.9))
         config_space.add_hyperparameter(CS.UniformIntegerHyperparameter('bagging_freq', lower=0, upper=50))
-        config_space.add_hyperparameter(CS.UniformFloatHyperparameter('feature_fraction', lower=0, upper=1))
+        config_space.add_hyperparameter(CS.UniformFloatHyperparameter('feature_fraction', lower=0.1, upper=0.9))
         config_space.add_hyperparameter(CS.UniformFloatHyperparameter('lambda_l1', lower=0, upper=1))
         config_space.add_hyperparameter(CS.UniformFloatHyperparameter('lambda_l2', lower=0, upper=1))
         config_space.add_hyperparameter(CS.UniformFloatHyperparameter('min_gain_to_split', lower=0, upper=1))

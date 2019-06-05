@@ -1,12 +1,11 @@
-import os
-import pickle
+# import os
+# import pickle
 import logging
 logging.basicConfig(level=logging.WARNING)
 
 import argparse
 
 import hpbandster.core.nameserver as hpns
-import hpbandster.core.result as hpres
 
 from hpbandster.optimizers import BOHB as BOHB
 from LightGBMWorker import LightGBMWorker as worker
