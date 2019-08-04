@@ -1,0 +1,17 @@
+{
+  "hyperparameters": [
+    {
+      "name": "w",
+      "type": "categorical",
+      "choices": [
+        0,
+        1
+      ],
+      "default": 0
+    }
+  ],
+  "conditions": [],
+  "forbiddens": [],
+  "python_module_version": "0.4.10",
+  "json_format_version": 0.1
+}
