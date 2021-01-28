@@ -27,12 +27,6 @@ RUN  apt-get install -y python3-setuptools git
 RUN git clone https://gitlab.com/nsnam/bake /build/ns3
 
 
-# build nsc
-RUN apt-get install -y flex-old bison wget python
-WORKDIR /build/nsc
-RUN wget http://research.wand.net.nz/software/nsc/$NSC_VERSION.tar.bz2
-RUN tar xf $NSC_VERSION.tar.bz2
-RUN cd $NSC_VERSION && patch -p1 < $BUILD/pak/patches/nsc.patch
-RUN cd $NSC_VERSION && ./scons.py
+
 
 
